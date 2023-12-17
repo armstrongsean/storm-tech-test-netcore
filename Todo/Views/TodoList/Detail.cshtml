@@ -16,6 +16,10 @@
             <label asp-for="HideDone" class="control-label"></label>
             <input asp-for="HideDone" />
         </div>
+        <div class="bg-light form-group" style="display: inline-block">
+            <label asp-for="OrderByRank" class="control-label"></label>
+            <input asp-for="OrderByRank" />
+        </div>
         <button type="submit" class="btn btn-primary pull-right">Apply Filter</button>
     </form>
     
@@ -27,7 +31,10 @@
             </a>
         </li>
 
-        @foreach (var item in Model.Items.Where(x => !Model.HideDone || !x.IsDone).OrderBy(x => x.Importance))
+        @foreach (var item in Model.Items.Where(x => !Model.HideDone || !x.IsDone)
+            .OrderBy(x => Model.OrderByRank 
+                ? (x.Rank == 0 ? int.MaxValue : x.Rank ) // Order by Rank if checkbox set, zeros last
+                : (int)  x.Importance)) // Otherwise order by importance
         {
             string contextualClass;
             switch (item.Importance)
