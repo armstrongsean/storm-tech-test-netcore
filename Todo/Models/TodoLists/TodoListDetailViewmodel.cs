@@ -10,6 +10,7 @@ namespace Todo.Models.TodoLists
         public string Title { get; }
         public ICollection<TodoItemSummaryViewmodel> Items { get; }
         
+        [Display(Name = "Hide Completed Items")]
         public bool HideDone { get; set; }
         
         [Display(Name = "Order By Rank")]
