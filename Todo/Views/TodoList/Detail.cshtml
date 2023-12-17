@@ -1,7 +1,7 @@
-﻿@using Todo.Controllers
-@using Todo.Data.Entities
-@using Todo.Services
+﻿@using Todo.Data.Entities
+@using Todo.Services.Interfaces
 @model Todo.Models.TodoLists.TodoListDetailViewmodel
+@inject IGravatarService GravatarService
 
 @{
     ViewData["Title"] = $"List: {Model.Title}";
@@ -11,6 +11,18 @@
 
 <div class="col-md-6">
 
+    <form asp-action="Detail" asp-controller="TodoList" asp-route-todoListId="@Model.TodoListId" method="post">
+        <div class="bg-light form-group" style="display: inline-block">
+            <label asp-for="HideDone" class="control-label"></label>
+            <input asp-for="HideDone" />
+        </div>
+        <div class="bg-light form-group" style="display: inline-block">
+            <label asp-for="OrderByRank" class="control-label"></label>
+            <input asp-for="OrderByRank" />
+        </div>
+        <button type="submit" class="btn btn-primary pull-right">Apply Filter</button>
+    </form>
+    
     <ul class="list-group">
 
         <li class="list-group-item">
@@ -19,7 +31,10 @@
             </a>
         </li>
 
-        @foreach (var item in Model.Items)
+        @foreach (var item in Model.Items.Where(x => !Model.HideDone || !x.IsDone)
+            .OrderBy(x => Model.OrderByRank 
+                ? (x.Rank == 0 ? int.MaxValue : x.Rank ) // Order by Rank if checkbox set, zeros last
+                : (int)  x.Importance)) // Otherwise order by importance
         {
             string contextualClass;
             switch (item.Importance)
@@ -55,9 +70,9 @@
 
                 <div class="col-md-4 text-right">
                     <small>
-                        @item.ResponsibleParty.UserName
+                        <strong style="font-weight: bold">@await GravatarService.GetUsernameAsync(@item.ResponsibleParty.UserName)</strong>
 
-                        <img src="https://www.gravatar.com/avatar/@Gravatar.GetHash(item.ResponsibleParty.Email)?s=30"/>
+                        <img src="https://www.gravatar.com/avatar/@GravatarService.GetHash(item.ResponsibleParty.Email)?s=30"/>
 
                     </small>
                 </div>

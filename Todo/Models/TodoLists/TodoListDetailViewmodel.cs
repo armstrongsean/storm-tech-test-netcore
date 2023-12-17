@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Todo.Models.TodoItems;
 
 namespace Todo.Models.TodoLists
@@ -8,6 +9,12 @@ namespace Todo.Models.TodoLists
         public int TodoListId { get; }
         public string Title { get; }
         public ICollection<TodoItemSummaryViewmodel> Items { get; }
+        
+        [Display(Name = "Hide Completed Items")]
+        public bool HideDone { get; set; }
+        
+        [Display(Name = "Order By Rank")]
+        public bool OrderByRank { get; set; }
 
         public TodoListDetailViewmodel(int todoListId, string title, ICollection<TodoItemSummaryViewmodel> items)
         {
