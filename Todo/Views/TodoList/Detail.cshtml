@@ -11,6 +11,14 @@
 
 <div class="col-md-6">
 
+    <form asp-action="Detail" asp-controller="TodoList" asp-route-todoListId="@Model.TodoListId" method="post">
+        <div class="bg-light form-group" style="display: inline-block">
+            <label asp-for="HideDone" class="control-label"></label>
+            <input asp-for="HideDone" />
+        </div>
+        <button type="submit" class="btn btn-primary pull-right">Apply Filter</button>
+    </form>
+    
     <ul class="list-group">
 
         <li class="list-group-item">
@@ -19,7 +27,7 @@
             </a>
         </li>
 
-        @foreach (var item in Model.Items.OrderBy(x => x.Importance))
+        @foreach (var item in Model.Items.Where(x => !Model.HideDone || !x.IsDone).OrderBy(x => x.Importance))
         {
             string contextualClass;
             switch (item.Importance)
