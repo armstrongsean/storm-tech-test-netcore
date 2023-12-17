@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,7 +11,8 @@ namespace Todo.Services
 {
     public static class Gravatar
     {
-        private static readonly HttpClient Client = new(); 
+        private static readonly HttpClient Client = new();
+        private static Dictionary<string, string> _displayNameLookup = new();
         
         /// <summary>
         ///     A helper method which attempts to retrieve the Gravatar profile for the given email address
@@ -24,6 +26,14 @@ namespace Todo.Services
         {
             var displayName = emailAddress; // default to email address
 
+            // This is just an example simple cache, in reality it should be extracted to a service
+            // provided by DI so it can be easily swapped. Something like redis to 
+            // prevent many requests to gravatar service every time the page loads.
+            if (_displayNameLookup.TryGetValue(emailAddress, out var username))
+            {
+                return username;
+            }
+
             try
             {
                 var jsonProfileUrl = $"https://www.gravatar.com/{GetHash(emailAddress)}.json";
@@ -35,13 +45,15 @@ namespace Todo.Services
                 var responseBody = await response.Content.ReadAsStringAsync();
                 var json = JsonConvert.DeserializeObject<GravatarResponse>(responseBody);
                 displayName = json.Entry[0].DisplayName;
+                
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Failed to retrieve Gravatar{e.Message}");
             }
             
-            return displayName; // Return email address if failed to read user name data
+            _displayNameLookup.Add(emailAddress, displayName);
+            return displayName; // Returns email address if failed to read user name data
         }
 
         public static string GetHash(string emailAddress)
